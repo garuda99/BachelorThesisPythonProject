@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 import time
 
-
 # send Requests to springer.com and return the DOIs of the paper it cites
 # Params: doi_entry is a tuple of address and id of the paper that is being cited
 # Returns: the id of the original paper and all the DOIs of the papers that are being referenced
@@ -103,14 +102,15 @@ def send_req_to_springer():
         start = time.time()
         for request_result in executor.map(send_req, doi_entries):
             counter += 1
-            if counter % 1 == 0:
+            if counter % 100 == 0:
                 current_time = time.time()
                 replacing_print(f"{(current_time - start) / counter * 100} {counter}")
             citation_dict[request_result[0]] = []
             if request_result[1]:
                 for tag in request_result[1]:
                     citation_dict[request_result[0]].append(tag["data-doi"])
-        if max_workers < 200:
+        executor.shutdown(wait=True)
+        if max_workers < 100:
             max_workers += 10
         # save all the data
         save_to_db(citation_dict)

@@ -6,7 +6,7 @@ from src.create_data.useful_functions import replacing_print, cleaned_data_path
 # Gather the data to show which Categories are used by what Paper(DOI)
 # If the DOI appears in more than one entry then only the categories which appear in all entries will be saved
 # Enter the gathered Data into the CATEGORY_DOI_RELATION table
-def createDOICategoryRelations():
+def create_doi_category_relations():
     connection = establish_connection()
     replacing_print("Searching for DOI-Category Relations")
     with open(cleaned_data_path()) as json_file:

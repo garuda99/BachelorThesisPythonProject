@@ -5,12 +5,9 @@ from src.create_data.useful_functions import replacing_print, change_cursor_to_l
 from src.create_data.create_author_author_relations import create_author_author_relations
 from src.create_data.create_category_category_relations import create_category_category_relations
 from src.create_data.get_all_doi import get_all_doi
-from src.create_data.send_get_requests import send_doi_requests
-from src.create_data.send_requests_to_springer import send_req_to_springer
-from src.create_data.create_author_doi_relationship import create_author_doi_relationship
 from src.create_data.clean_data import clean_data
+from src.create_data.create_category_doi_relationship import create_doi_category_relations
 import os
-import time
 
 
 # The main function of the createData folder
@@ -33,17 +30,12 @@ def main():
     if check_if_table_is_empty("CATEGORY_CATEGORY_RELATION"):
         replacing_print("Create category-category relations")
         create_category_category_relations()
+    print("pk")
     if check_if_table_is_empty("DOI"):
         replacing_print("Get all DOI")
         get_all_doi()
-    replacing_print("send DOI requests")
-    time.sleep(10)
-    send_doi_requests(5000)
-    if check_if_table_is_empty("AUTHOR_DOI_RELATION"):
-        replacing_print("create author doi relationship")
-        create_author_doi_relationship()
-    replacing_print("send requests to springer")
-    send_req_to_springer()
+    if check_if_table_is_empty("CATEGORY_DOI_RELATION"):
+        create_doi_category_relations()
 
 
 # Checks if a table is empty
@@ -88,12 +80,4 @@ def drop_author_tables():
 # Runs the main function which runs the all the functions in the correct order
 # This is done to extract all the necessary information for the database and API
 if __name__ == '__main__':
-    memory_error_counter = 0
-    runtime_error_counter = 0
-    while memory_error_counter < 2 and runtime_error_counter < 2:
-        try:
-            main()
-        except MemoryError:
-            memory_error_counter += 1
-    print(memory_error_counter)
-    print(runtime_error_counter)
+    main()

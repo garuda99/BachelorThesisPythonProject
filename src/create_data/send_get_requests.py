@@ -41,7 +41,7 @@ def send_doi_requests(batch_size):
         result = change_cursor_to_list(result)
         first_part = result[0:batch_size]
         second_part = result[batch_size:]
-        max_workers = 200
+        max_workers = 100
         while len(first_part) > 0:
             executor = ThreadPoolExecutor(max_workers=max_workers)
             url_list = []
@@ -67,7 +67,7 @@ def send_doi_requests(batch_size):
                             """, params)
             first_part = second_part[0:batch_size]
             second_part = second_part[batch_size:]
-            if max_workers < 200:
+            if max_workers < 100:
                 max_workers += 10
         old_length = new_length
         new_length = count_empty_doi_address_rows()
