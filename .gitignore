@@ -1,3 +1,6 @@
 /dumpFolder/
-/databases/
+/databases/categoryNetwork.ttl
+/databases/citationNetwork.ttl
+/databases/database.db
+/databases/database.zip
 /venv/
