@@ -5,6 +5,7 @@ import json
 from src.create_data.create_sqlite import establish_connection
 from src.create_data.useful_functions import replacing_print, cleaned_data_path
 
+
 # thank you to https://www.w3schools.com/python/python_json.asp for providing a quick overview of the json package
 
 # Gather all author data and insert it into the ALLAUTHORNAMES table
@@ -33,8 +34,8 @@ def name_harmonize_authors():
             for aut in authors:
                 author = combine_author_name(aut)
                 new_author = unidecode(author)
-                # The name of an Author has to be at least 3 letters long
-                if len(re.findall("[a-zA-Z]", new_author)) > 2:
+                # The name of an Author has to be at least 3 letters long and not contain any numbers
+                if len(re.findall("[a-zA-Z]", new_author)) > 2 and len(re.findall("[0-9]", new_author)) == 0:
                     # In order to make the matching easier all unnecessary symbols are removed with
                     # the simplify_author_name function
                     new_author = simplify_author_name(new_author)
