@@ -30,7 +30,6 @@ def main():
     if check_if_table_is_empty("CATEGORY_CATEGORY_RELATION"):
         replacing_print("Create category-category relations")
         create_category_category_relations()
-    print("pk")
     if check_if_table_is_empty("DOI"):
         replacing_print("Get all DOI")
         get_all_doi()
