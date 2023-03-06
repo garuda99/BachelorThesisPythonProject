@@ -96,52 +96,41 @@ def name_harmonize_authors():
 
 # combine two entries into one
 # For example "Linder S" and "Linder Simon" is the same person and therefore should only have one entry
-# Param: first_author is the name of the author that will be merged into.
-# Param: author2 is the author that will be merged to the first_author.
+# Param: author1 is the name of the author that will be merged into.
+# Param: author2 is the author that will be merged to the new_author.
 # Param: author_dict is the dict in which the authors will be merged
-# Returns the name of the new author entry that contains all the information of the merged authors
-def merge_authors(first_author, author2, author_dict):
+# Returns the name of the new author entry that contains all the information of the merged authors and the author name
+# that has been removed
+def merge_authors(author1, author2, author_dict):
     # combine the author name data
-    for author in author_dict[author2]["authors"].keys():
-        number_of_author_appearances = author_dict[author2]["authors"][author]
-        if author in author_dict[first_author]["authors"].keys():
-            author_dict[first_author]["authors"][author] += number_of_author_appearances
+    new_author, author_to_merge = combine_names(author1, author2)
+    for author in author_dict[author_to_merge]["authors"].keys():
+        number_of_author_appearances = author_dict[author_to_merge]["authors"][author]
+        if author in author_dict[new_author]["authors"].keys():
+            author_dict[new_author]["authors"][author] += number_of_author_appearances
         else:
-            author_dict[first_author]["authors"][author] = number_of_author_appearances
+            author_dict[new_author]["authors"][author] = number_of_author_appearances
     # combine the category data
-    for category in author_dict[author2]["categories"].keys():
-        number_of_category_appearances = author_dict[author2]["categories"][category]
-        if category in author_dict[first_author]["categories"].keys():
-            author_dict[first_author]["categories"][category] += number_of_category_appearances
+    for category in author_dict[author_to_merge]["categories"].keys():
+        number_of_category_appearances = author_dict[author_to_merge]["categories"][category]
+        if category in author_dict[new_author]["categories"].keys():
+            author_dict[new_author]["categories"][category] += number_of_category_appearances
         else:
-            author_dict[first_author]["categories"][category] = number_of_category_appearances
+            author_dict[new_author]["categories"][category] = number_of_category_appearances
     # remove that entry that was copied into the other
-    del author_dict[author2]
+    del author_dict[author_to_merge]
     # create a more appropriate name for the remaining entry
-    new_name = combine_names(first_author, author2)
-    rename_dict(new_name, first_author, author_dict)
-    return new_name
-
-
-# Rename an entry within the author_dict
-# Param: new_name is the name the author should have
-# Param: old_name is the name the author currently has
-# Param: author_dict is the Dict with all the data
-def rename_dict(new_name, old_name, author_dict):
-    if new_name != old_name:
-        if new_name in author_dict:
-            print(f"ERROR {new_name} already exists as {old_name}")
-        author_dict[new_name] = author_dict.pop(old_name)
+    return new_author, author_to_merge
 
 
 # Returns the longer name of two given names which should be used if the names are merged
 # Params: name1, name2 the names that need to be compared
-# Returns: the longer name
+# Returns: the longer name, the shorter name
 def combine_names(name1, name2):
     if len(name1) > len(name2):
-        return name1
+        return name1, name2
     else:
-        return name2
+        return name2, name1
 
 
 # Combine an author name list into a single string
@@ -188,7 +177,7 @@ def refine(author_dict):
 
 
 # Combine entries in the author_dict where the names refer to the same author
-# This is just like the refine method but it is slightly more complex
+# This is similar to the refine method, but it is slightly more complex
 # Param: author_dict is the dict that is supposed to be refined
 def refine2(author_dict):
     authors = sorted(author_dict.keys())
@@ -207,7 +196,7 @@ def refine2(author_dict):
         # If there are more than two authors with the same last name then they could possibly be the same person
         if len(author_list) >= 2:
             # The removable_author_list exists in order to prevent an author from being merged twice
-            # If an author is merged then the entry is removed from the list and it then can not be merged again
+            # If an author is merged then the entry is removed from the list. This is done so that it then can not be merged again
             removable_author_list = author_list.copy()
             # find all authors where each word in the name starts with
             # the same letter as the name in the current author
@@ -216,11 +205,11 @@ def refine2(author_dict):
                 match_string = f"{split_author[0]}"
                 for name in split_author[1:]:
                     match_string += " " + str(name[0]) + "[a-zA-Z]{0,}"
-                match_string += "$"
+                match_string += "[ a-zA-Z]{0,}$"
                 merge_list = [aut for aut in removable_author_list if re.match(match_string, aut)]
                 # remove all authors from the merge_list in order to ensure that they can not merge again
-                for element in merge_list:
-                    removable_author_list.remove(element)
+  #              for element in merge_list:
+   #                 removable_author_list.remove(element)
                 # if there are multiple authors that may be merged then they have to be analyzed to ensure that there
                 # are no conflicts (for example Linder S could be Linder Simon or Linder Stefan)
 
@@ -230,21 +219,25 @@ def refine2(author_dict):
                     longest_name = merge_list[0].split(" ")
                     for element in merge_list[1:]:
                         element = element.split(" ")
-                        for j in range(len(longest_name)):
+                        for j in range(min(len(longest_name), len(element))):
                             if len(element[j]) > len(longest_name[j]):
                                 longest_name[j] = element[j]
+                        for j in range(len(longest_name), len(element)):
+                            longest_name.append(element[j])
                     # if all names of the full name match the names of the longest name then all the names can be merged
                     mergeable = True
                     for element in merge_list:
                         element = element.split(" ")
-                        for j in range(len(longest_name)):
+                        for j in range(len(element)):
                             if not longest_name[j].startswith(element[j]):
                                 mergeable = False
                     # merge the names if it is possible
                     if mergeable:
                         for element in merge_list[1:]:
-                            merge_list[0] = merge_names(merge_list[0], element, author_dict)
-
+                            names=merge_names(merge_list[0], element, author_dict)
+                            if names:
+                                merge_list[0] = names[0]
+                                removable_author_list.remove(names[1])
 
 # Recursively check if names of the nodes can be merged and merge them corresponding names in the author_dict
 # Params: node is the node that should be merged (and its children as well) if it is allowed to be merged
@@ -255,13 +248,14 @@ def merge_with_parent(node, author_dict):
     if (node.parent is not None) and node.parent.mergeable and node.mergeable:
         if [category for category in author_dict[node.name]["categories"] if
             category in author_dict[node.parent.name]["categories"]]:
-            node.parent.name = merge_authors(node.parent.name, node.name, author_dict)
+            node.parent.name = merge_authors(node.parent.name, node.name, author_dict)[0]
 
 
 # Merge two names in an author_dict
 # Params: name1 and name2 are the names that need to be merged
 # Params: author_dict is the dict which stores all the authors
-# Returns: the name that still exists within the author_dict
+# Returns: if the merge happened then the name that still exists within the author_dict and the name that was merged are returned
+#          else false is returned
 def merge_names(name1, name2, author_dict):
     if name1 == name2:
         print(f"ERROR trying to merge the same Name: {name2}")
@@ -269,7 +263,7 @@ def merge_names(name1, name2, author_dict):
         category in author_dict[name2]["categories"]]:
         return merge_authors(name1, name2, author_dict)
     else:
-        return name1
+        return False
 
 
 # Set all the nodes in a tree to their correct mergeable state.
