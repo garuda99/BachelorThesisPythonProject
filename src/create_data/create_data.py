@@ -7,6 +7,7 @@ from src.create_data.create_category_category_relations import create_category_c
 from src.create_data.get_all_doi import get_all_doi
 from src.create_data.clean_data import clean_data
 from src.create_data.create_category_doi_relationship import create_doi_category_relations
+from src.create_data.create_non_harmonized_collaborators import create_non_harmonized_author_author_relations
 import os
 
 
@@ -27,6 +28,9 @@ def main():
     if check_if_table_is_empty("AUTHOR_WORKS_WITH_AUTHOR"):
         replacing_print("Creating author-author relations")
         create_author_author_relations()
+    if check_if_table_is_empty("AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED"):
+        replacing_print("Creating author-author-non-harmonized relations")
+        create_non_harmonized_author_author_relations()
     if check_if_table_is_empty("CATEGORY_CATEGORY_RELATION"):
         replacing_print("Create category-category relations")
         create_category_category_relations()

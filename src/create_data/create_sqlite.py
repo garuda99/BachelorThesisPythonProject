@@ -60,6 +60,16 @@ def create_all_tables():
             );
         """)
         connection.execute("""
+            CREATE TABLE IF NOT EXISTS AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED (
+                idOfAuthorOne INTEGER,
+                idOfAuthorTwo INTEGER,
+                numberOfPapers INTEGER,
+                FOREIGN KEY (idOfAuthorOne) REFERENCES ALLAUTHORNAMES (id),
+                FOREIGN KEY (idOfAuthorTwo) REFERENCES ALLAUTHORNAMES (id),
+                PRIMARY KEY (idOfAuthorOne, idOfAuthorTwo)
+            );
+        """)
+        connection.execute("""
             CREATE TABLE IF NOT EXISTS CATEGORY_CATEGORY_RELATION (
                 idOfCategoryOne INTEGER,
                 idOfCategoryTwo INTEGER,
@@ -121,6 +131,15 @@ def create_all_tables():
             CREATE INDEX IF NOT EXISTS idOfAuthorTwo_index ON AUTHOR_WORKS_WITH_AUTHOR (idOfAuthorTwo);
         """)
         connection.execute("""
+            CREATE INDEX IF NOT EXISTS numberOfPapers_non_harmonized_index ON AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED (numberOfPapers);
+        """)
+        connection.execute("""
+            CREATE INDEX IF NOT EXISTS idOfAuthorOne_non_harmonized_index ON AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED (idOfAuthorOne);
+        """)
+        connection.execute("""
+            CREATE INDEX IF NOT EXISTS idOfAuthorTwo_non_harmonized_index ON AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED (idOfAuthorTwo);
+        """)
+        connection.execute("""
             CREATE INDEX IF NOT EXISTS numberOfSharedCategoryPapers_index ON CATEGORY_CATEGORY_RELATION (numberOfSharedPapers);
         """)
         connection.execute("""
@@ -140,14 +159,16 @@ def drop_all_tables():
     with connection:
         index = ["author_name_index", "category_name_index", "allAuthorNames_name_index", "numberOfPapers_index",
                  "idOfAuthorOne_index", "idOfAuthorTwo_index", "numberOfSharedCategoryPapers_index",
-                 "idOfCategoryOne_index", "idOfCategoryTwo_index", "doiName_index", "doiWebAddress_index"]
+                 "idOfCategoryOne_index", "idOfCategoryTwo_index", "doiName_index", "doiWebAddress_index",
+                 "numberOfPapers_non_harmonized_index", "idOfAuthorOne_non_harmonized_index",
+                 "idOfAuthorTwo_non_harmonized_index"]
         for i in index:
             connection.execute(f"""
                 DROP INDEX IF EXISTS {i}
             """)
         table = ["AUTHOR", "CATEGORY", "ALLAUTHORNAMES", "AUTHOR_CATEGORY", "AUTHOR_WORKS_WITH_AUTHOR",
                  "CATEGORY_CATEGORY_RELATION", "CATEGORY_DOI_RELATION", "DOI", "DOI_CITED", "DOI_CITES_DOI",
-                 "AUTHOR_DOI_RELATION"]
+                 "AUTHOR_DOI_RELATION","AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED"]
         for i in table:
             connection.execute(f"""
                DROP TABLE IF EXISTS {i}
