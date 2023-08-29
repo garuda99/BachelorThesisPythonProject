@@ -41,6 +41,9 @@ def create_all_tables():
             CREATE UNIQUE INDEX IF NOT EXISTS allAuthorNames_name_index ON ALLAUTHORNAMES (name);
         """)
         connection.execute("""
+            CREATE INDEX IF NOT EXISTS allAuthorNames_idOfAuthor_index ON ALLAUTHORNAMES (idOfAuthor);
+        """)
+        connection.execute("""
             CREATE TABLE IF NOT EXISTS AUTHOR_CATEGORY (
                 idOfAuthor INTEGER,
                 idOfCategory INTEGER,
@@ -161,7 +164,7 @@ def drop_all_tables():
                  "idOfAuthorOne_index", "idOfAuthorTwo_index", "numberOfSharedCategoryPapers_index",
                  "idOfCategoryOne_index", "idOfCategoryTwo_index", "doiName_index", "doiWebAddress_index",
                  "numberOfPapers_non_harmonized_index", "idOfAuthorOne_non_harmonized_index",
-                 "idOfAuthorTwo_non_harmonized_index"]
+                 "idOfAuthorTwo_non_harmonized_index", "allAuthorNames_idOfAuthor_index"]
         for i in index:
             connection.execute(f"""
                 DROP INDEX IF EXISTS {i}
