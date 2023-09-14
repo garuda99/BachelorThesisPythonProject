@@ -8,6 +8,7 @@ from src.create_data.get_all_doi import get_all_doi
 from src.create_data.clean_data import clean_data
 from src.create_data.create_category_doi_relationship import create_doi_category_relations
 from src.create_data.create_non_harmonized_collaborators import create_non_harmonized_author_author_relations
+from src.create_data.add_titles_to_doi import add_titles_to_doi
 import os
 
 
@@ -39,6 +40,32 @@ def main():
         get_all_doi()
     if check_if_table_is_empty("CATEGORY_DOI_RELATION"):
         create_doi_category_relations()
+    if check_if_titles_are_in_doi():
+        add_titles_to_doi()
+
+
+# Checks if a table DOI has title entries
+# Returns true if table DOI has not all title entries
+# Returns false if the table DOI has all title entries
+def check_if_titles_are_in_doi():
+    connection = establish_connection()
+    with connection:
+        result = connection.execute("""
+        SELECT *
+        FROM DOI
+        """)
+        if len(change_cursor_to_list(result)[0]) < 4:
+            return True
+        else:
+            result = connection.execute("""
+            SELECT COUNT(*)
+            FROM DOI
+            WHERE title is NULL
+            """)
+            if change_cursor_to_list(result)[0][0] > 0:
+                return True
+            else:
+                return False
 
 
 # Checks if a table is empty
