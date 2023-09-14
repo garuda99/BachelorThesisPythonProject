@@ -7,7 +7,7 @@ from src.backend.endpoint_layer.endpoint import app
 def test_author_with_id_1():
     response = app.test_client().get('/author/1')
     assert response.status_code == 200
-    assert b"0 collaboration" in response.data
+    assert b"a a calcaterra" in response.data
     assert b"1" in response.data
 
 
@@ -19,7 +19,7 @@ def test_search_for_author_with_name_simonL():
 
 
 def test_spellings_of_author_with_id_24903():
-    response = app.test_client().get("/author/spellings/24903")
+    response = app.test_client().get("/author/spellings/24846")
     assert response.status_code == 200
     assert b"Althaus L." in response.data
     assert b"Althaus L. G." in response.data
@@ -29,7 +29,7 @@ def test_spellings_of_author_with_id_24903():
 
 
 def test_collaborators_of_author_with_id_5():
-    response = app.test_client().get("/author/collaborators/5")
+    response = app.test_client().get("/author/collaborators/45611")
     assert response.status_code == 200
     assert b"amarian moskov" in response.data
     assert b"auerbach l b" in response.data
