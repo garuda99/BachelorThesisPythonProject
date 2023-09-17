@@ -10,12 +10,12 @@ def citation_tree(doi_id):
     connection = establish_connection()
     with connection:
         result = connection.execute("""
-            WITH tree (doiId, citesDoiId,name,depth) AS (
-                SELECT dcd.doiId, dcd.citesDoiId,d.name,  1
+            WITH tree (doiId, citesDoiId,title,depth) AS (
+                SELECT dcd.doiId, dcd.citesDoiId,d.title,  1
                 FROM DOI_CITES_DOI dcd JOIN DOI d on dcd.citesDoiId = d.id
                 WHERE dcd.doiId = ?
                     UNION
-                SELECT dcd2.doiId, dcd2.citesDoiId, d2.name, t.depth +1
+                SELECT dcd2.doiId, dcd2.citesDoiId, d2.title, t.depth +1
                 FROM DOI_CITES_DOI dcd2 JOIN DOI d2 ON dcd2.citesDoiId =d2.id JOIN tree t ON t.citesDoiId = dcd2.doiId
                 WHERE t.depth<10)
             SELECT *

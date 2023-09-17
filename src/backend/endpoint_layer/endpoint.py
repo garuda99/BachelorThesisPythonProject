@@ -69,11 +69,20 @@ def get_citation_tree(doi_id):
         return generate_response(e.message), e.errorCode
 
 
-# returns papers (DOI) where the "name" is a substring of the DOI
-@app.route("/paper/search/<path:name>")
-def search_papers(name):
+# returns paper with id paper_id
+@app.route("/paper/<paper_id>")
+def get_paper(paper_id):
     try:
-        return generate_id_name_array_response(validation.search_papers(name))
+        return generate_paper_response(validation.get_paper(paper_id))
+    except (EmptyResultException, ValidationException, TooLargeResultException) as e:
+        return generate_response(e.message), e.errorCode
+
+
+# returns papers (DOI) where the title is a substring of the title of the paper
+@app.route("/paper/search/<path:title>")
+def search_papers(title):
+    try:
+        return generate_id_name_array_response(validation.search_papers(title))
     except EmptyResultException as e:
         return generate_response(e.message), e.errorCode
 
@@ -152,6 +161,11 @@ def generate_id_name_array_response(data):
     for r in data:
         result_list.append({"id": r[0], "name": r[1]})
     return generate_response(result_list)
+
+
+def generate_paper_response(data):
+    print(data)
+    return generate_response({"id": data[0][0], "doi": data[0][1], "title": data[0][2]})
 
 
 # returns a flask response with the data as a list of CitationTreeResponseNodes

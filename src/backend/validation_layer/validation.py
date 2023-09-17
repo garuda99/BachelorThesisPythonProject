@@ -6,6 +6,7 @@ from src.backend.persistence_layer.citation_tree import citation_tree
 from src.backend.persistence_layer.author import name_harmonized_authors, frequent_collaborators, get_author_from_db, \
     search_db_for_authors, papers_for_author
 from src.backend.persistence_layer.doi import search_db_for_doi
+from src.backend.persistence_layer.paper import get_paper_from_db
 import os
 from src.backend.exception.validation_exception import ValidationException
 from src.backend.exception.empyt_result_exception import EmptyResultException
@@ -25,14 +26,26 @@ from flask_api import status
 
 def get_author(author_id):
     if not author_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {author_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {author_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = get_author_from_db(author_id)
     if len(result) == 0:
-        raise EmptyResultException(f"Author with id {author_id} does not exist", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException(f"Author with id {author_id} does not exist!", status.HTTP_404_NOT_FOUND)
     elif len(result) == 1:
         return result
     else:
-        raise TooLargeResultException("Multiple authors were found", status.HTTP_400_BAD_REQUEST)
+        raise TooLargeResultException("Multiple authors were found!", status.HTTP_400_BAD_REQUEST)
+
+
+def get_paper(paper_id):
+    if not paper_id.isnumeric():
+        raise ValidationException(f"Invalid Request! {paper_id} is not a number!", status.HTTP_400_BAD_REQUEST)
+    result = get_paper_from_db(paper_id)
+    if len(result) == 0:
+        raise EmptyResultException(f"Paper with id {paper_id} does not exist!", status.HTTP_404_NOT_FOUND)
+    elif len(result) == 1:
+        return result
+    else:
+        raise TooLargeResultException("Multiple papers were found!", status.HTTP_400_BAD_REQUEST)
 
 
 def search_authors(name):
@@ -40,55 +53,55 @@ def search_authors(name):
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException(f"No authors with name {name}", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException(f"No authors with name {name}!", status.HTTP_404_NOT_FOUND)
 
 
 def get_different_spelling_of_same_author(author_id):
     if not author_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {author_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {author_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = name_harmonized_authors(author_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No spellings found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No spellings found!", status.HTTP_404_NOT_FOUND)
 
 
 def get_frequent_collaborators(author_id):
     if not author_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {author_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {author_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = frequent_collaborators(author_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No collaborators found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No collaborators found!", status.HTTP_404_NOT_FOUND)
 
 
 def get_papers_for_author(author_id):
     if not author_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {author_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {author_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = papers_for_author(author_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No papers found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No papers found!", status.HTTP_404_NOT_FOUND)
 
 
 def get_citation_tree(doi_id):
     if not doi_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {doi_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {doi_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = citation_tree(doi_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No citation tree found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No citation tree found!", status.HTTP_404_NOT_FOUND)
 
 
-def search_papers(name):
-    result = search_db_for_doi(name.lower())
+def search_papers(title):
+    result = search_db_for_doi(title.lower())
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException(f"No papers with name {name}", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException(f"No papers with title {title}!", status.HTTP_404_NOT_FOUND)
 
 
 def get_categories():
@@ -96,7 +109,7 @@ def get_categories():
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No categories found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No categories found!", status.HTTP_404_NOT_FOUND)
 
 
 def search_categories(name):
@@ -104,49 +117,49 @@ def search_categories(name):
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException(f"No category with name {name}", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException(f"No category with name {name}!", status.HTTP_404_NOT_FOUND)
 
 
 def get_category(category_id):
     if not category_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {category_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {category_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = category_from_db(category_id)
     if len(result) == 0:
-        raise EmptyResultException(f"Category with id {category_id} does not exist", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException(f"Category with id {category_id} does not exist!", status.HTTP_404_NOT_FOUND)
     elif len(result) == 1:
         return result
     else:
-        raise TooLargeResultException("Multiple categories were found", status.HTTP_400_BAD_REQUEST)
+        raise TooLargeResultException("Multiple categories were found!", status.HTTP_400_BAD_REQUEST)
 
 
 def get_neighbouring_categories(category_id):
     if not category_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {category_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {category_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = get_neighbouring_domain_network_categories(category_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("Category not found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("Category not found!", status.HTTP_404_NOT_FOUND)
 
 
 def get_category_cites(category_id):
     if not category_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {category_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {category_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = category_cites(category_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("Category not found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("Category not found!", status.HTTP_404_NOT_FOUND)
 
 
 def get_category_cited_by(category_id):
     if not category_id.isnumeric():
-        raise ValidationException(f"Invalid Request! {category_id} is not a number", status.HTTP_400_BAD_REQUEST)
+        raise ValidationException(f"Invalid Request! {category_id} is not a number!", status.HTTP_400_BAD_REQUEST)
     result = category_is_cited_by(category_id)
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("Category not found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("Category not found!", status.HTTP_404_NOT_FOUND)
 
 
 # returns the domain network data
@@ -155,7 +168,7 @@ def get_domain_network():
     if len(domain_data) > 0:
         return domain_data
     else:
-        raise EmptyResultException("No Domain Network found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No Domain Network found!", status.HTTP_404_NOT_FOUND)
 
 
 # returns the citation network data
@@ -164,7 +177,7 @@ def get_citation_network():
     if len(result) > 0:
         return result
     else:
-        raise EmptyResultException("No Citation Network found", status.HTTP_404_NOT_FOUND)
+        raise EmptyResultException("No Citation Network found!", status.HTTP_404_NOT_FOUND)
 
 
 # thank you to https://www.youtube.com/watch?v=AXN9gszoti4 which explained how the .ttl format works
@@ -208,9 +221,9 @@ def create_citation_network():
         raise EmptyResultException(e.message, e.errorCode)
     with open(db_path, "w+") as ttl_file:
         ttl_file.write("@prefix a: <http://citationNode.com/data#> . \n"
-                      "@prefix b: <http://citationEdge.com/data#> . \n"
-                      "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
-                      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n")
+                       "@prefix b: <http://citationEdge.com/data#> . \n"
+                       "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+                       "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n")
         for node in nodes:
             ttl_file.write(f"a:{node[0]} rdfs:label \"{node[1]}\"^^xsd:string .\n")
         ttl_file.write("\n")
