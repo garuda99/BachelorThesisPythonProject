@@ -7,7 +7,7 @@ from src.create_data.useful_functions import replacing_print, cleaned_data_path,
 #   then one of the entries is removed. (Only if they are very similar)
 def clean_data():
     counter = 0
-    replacing_print("Searching for Author DOI Relationships")
+    replacing_print("Cleaning Data")
     doi_dict = {}
     # create a dict which contains a list of ids of the papers that are have the same doi,title,authors and categories
     # most entries will only have one Id (because they are unique)
