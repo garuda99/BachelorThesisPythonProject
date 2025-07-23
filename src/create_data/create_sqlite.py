@@ -6,8 +6,9 @@ import os
 # an easy tutorial on how to use SQLite with python
 
 # create all the Tables and Indexes that are used within this code
-def create_all_tables():
-    connection = establish_connection()
+def create_all_tables(connection = None):
+    if not connection:
+        connection = establish_connection()
     with connection:
         connection.execute("""
             CREATE TABLE IF NOT EXISTS AUTHOR (
@@ -125,6 +126,23 @@ def create_all_tables():
             );
         """)
         connection.execute("""
+            CREATE TABLE IF NOT EXISTS AUTHOR_GROUND_TRUTH (
+                id INTEGER PRIMARY KEY,
+                name TEXT,
+                numberOfOccurrences INTEGER
+            );
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS AUTHOR_GROUND_TRUTH_RELATION (
+                idOfAuthor INTEGER,
+                idOfGroundTruth INTEGER,
+                numberOfOccurrences INTEGER,
+                PRIMARY KEY (idOfAuthor,idOfGroundTruth),
+                FOREIGN KEY (idOfAuthor) REFERENCES AUTHOR (id),
+                FOREIGN KEY (idOfGroundTruth) REFERENCES AUTHOR_GROUND_TRUTH (id)
+            );
+        """)
+        connection.execute("""
             CREATE INDEX IF NOT EXISTS numberOfPapers_index ON AUTHOR_WORKS_WITH_AUTHOR (numberOfPapers);
         """)
         connection.execute("""
@@ -171,7 +189,7 @@ def drop_all_tables():
             """)
         table = ["AUTHOR", "CATEGORY", "ALLAUTHORNAMES", "AUTHOR_CATEGORY", "AUTHOR_WORKS_WITH_AUTHOR",
                  "CATEGORY_CATEGORY_RELATION", "CATEGORY_DOI_RELATION", "DOI", "DOI_CITED", "DOI_CITES_DOI",
-                 "AUTHOR_DOI_RELATION","AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED"]
+                 "AUTHOR_DOI_RELATION","AUTHOR_WORKS_WITH_AUTHOR_NON_HARMONIZED","AUTHOR_GROUND_TRUTH","AUTHOR_GROUND_TRUTH_RELATION"]
         for i in table:
             connection.execute(f"""
                DROP TABLE IF EXISTS {i}
@@ -180,9 +198,12 @@ def drop_all_tables():
 
 # establish a connection to the database
 # returns the connection which can be used to make changes to the DB
-def establish_connection():
+def establish_connection(db_name = None):
     path = os.path.realpath(__file__)
     path = os.path.dirname(os.path.dirname(path))
-    databasePath = os.path.join(path, "../databases/database.db")
+    if db_name is None:
+        databasePath = os.path.join(path, f"../databases/database.db")
+    else:
+        databasePath = os.path.join(path, f"../databases/{db_name}.db")
     connection = sqlite.connect(databasePath)
     return connection

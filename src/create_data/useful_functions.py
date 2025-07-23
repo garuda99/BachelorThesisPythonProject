@@ -20,17 +20,34 @@ def replacing_print(string):
     print(f"\r{string}", end="")
 
 
-# Returns: the path to the original json file
-def original_data_path():
+# Returns: the path to the original file
+def original_data_path(db_name = None):
     path = os.path.realpath(__file__)
     path = os.path.dirname(os.path.dirname(path))
     dumpFolderPath = os.path.join(path, "../dumpFolder")
-    return os.path.join(dumpFolderPath, "original.json")
+    if db_name == "scad":
+        return os.path.join(dumpFolderPath, "scad_test.xml")
+    else:
+        return os.path.join(dumpFolderPath, "original.json")
 
 
 # Returns: the path to the cleaned json file
-def cleaned_data_path():
+def cleaned_data_path(db_name = None):
     path = os.path.realpath(__file__)
     path = os.path.dirname(os.path.dirname(path))
     dumpFolderPath = os.path.join(path, "../dumpFolder")
-    return os.path.join(dumpFolderPath, "cleaned.json")
+    if db_name == "scad":
+        return os.path.join(dumpFolderPath, "scad_test.json")
+    else:
+        return os.path.join(dumpFolderPath, "cleaned.json")
+
+def databases_path():
+    path = os.path.realpath(__file__)
+    path = os.path.dirname(os.path.dirname(path))
+    return os.path.join(path, "../databases")
+
+
+def dumpFolder_path():
+    path = os.path.realpath(__file__)
+    path = os.path.dirname(os.path.dirname(path))
+    return os.path.join(path, "../dumpFolder")

@@ -2,7 +2,7 @@ from src.create_data.send_get_requests import send_doi_requests
 from src.create_data.send_requests_to_springer import send_req_to_springer
 from src.create_data.create_author_doi_relationship import create_author_doi_relationship
 from src.create_data.useful_functions import replacing_print
-from src.create_data.create_data import check_if_table_is_empty
+from src.create_data.main_create_data import check_if_table_is_empty
 
 def main():
     replacing_print("send DOI requests")

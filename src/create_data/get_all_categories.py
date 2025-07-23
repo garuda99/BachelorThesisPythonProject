@@ -5,11 +5,12 @@ from src.create_data.useful_functions import replacing_print,cleaned_data_path
 
 # Create a Dict of all categories and how often they occur
 # Enter the data into the DB
-def create_category_dict():
-    connection = establish_connection()
+def create_category_dict(connection = None,db_name = None):
+    if not connection:
+        connection = establish_connection()
     counter = 0
     replacing_print("Searching for Categories")
-    with open(cleaned_data_path()) as json_file:
+    with open(cleaned_data_path(db_name)) as json_file:
         category_dict = {}
         line = json_file.readline()
         # Enter the categories into the Dict

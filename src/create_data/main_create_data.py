@@ -14,12 +14,13 @@ import os
 
 # The main function of the createData folder
 # Everything will be created so that the API has data that can be accessed
-def main():
+def main(db_name = None):
+    connection = establish_connection(db_name)
     if not os.path.exists(cleaned_data_path()):
         replacing_print("Cleaning Data")
         clean_data()
     replacing_print("Creating all DB Tables")
-    create_all_tables()
+    create_all_tables(connection)
     if check_if_table_is_empty("CATEGORY"):
         replacing_print("Starting to Collect Categories")
         create_category_dict()
@@ -47,8 +48,9 @@ def main():
 # Checks if a table DOI has title entries
 # Returns true if table DOI has not all title entries
 # Returns false if the table DOI has all title entries
-def check_if_titles_are_in_doi():
-    connection = establish_connection()
+def check_if_titles_are_in_doi(connection = None):
+    if not connection:
+        connection = establish_connection()
     with connection:
         result = connection.execute("""
         SELECT *
@@ -72,8 +74,9 @@ def check_if_titles_are_in_doi():
 # Parameter table_name is the name of the table that should be checked.
 # Returns true if table has no entries
 # Returns false if the table has one or more entries
-def check_if_table_is_empty(table_name):
-    connection = establish_connection()
+def check_if_table_is_empty(table_name, connection = None):
+    if not connection:
+        connection = establish_connection()
     with connection:
         result = change_cursor_to_list(connection.execute("SELECT COUNT(*) FROM " + table_name))
     if result[0][0] > 0:
@@ -85,22 +88,23 @@ def check_if_table_is_empty(table_name):
 # Checks if all author tables are empty
 # Returns false if all tables are filled
 # Returns true and clears all tables if only some are filled if none are filled then true is also returned
-def check_if_author_tables_are_empty():
-    if not (check_if_table_is_empty("AUTHOR") or check_if_table_is_empty("ALLAUTHORNAMES") or check_if_table_is_empty(
-            "AUTHOR_CATEGORY")):
+def check_if_author_tables_are_empty(connection = None):
+    if not (check_if_table_is_empty("AUTHOR",connection) or check_if_table_is_empty("ALLAUTHORNAMES",connection) or check_if_table_is_empty(
+            "AUTHOR_CATEGORY",connection)):
         return False
-    if check_if_table_is_empty("AUTHOR") and check_if_table_is_empty("ALLAUTHORNAMES") and check_if_table_is_empty(
-            "AUTHOR_CATEGORY"):
+    if check_if_table_is_empty("AUTHOR",connection) and check_if_table_is_empty("ALLAUTHORNAMES",connection) and check_if_table_is_empty(
+            "AUTHOR_CATEGORY",connection):
         return True
     else:
-        drop_author_tables()
-        create_all_tables()
+        drop_author_tables(connection)
+        create_all_tables(connection)
         return True
 
 
 # Drops all author tables
-def drop_author_tables():
-    connection = establish_connection()
+def drop_author_tables(connection = None):
+    if not connection:
+        connection = establish_connection()
     with connection:
         connection.execute("DROP TABLE AUTHOR")
         connection.execute("DROP TABLE ALLAUTHORNAMES")

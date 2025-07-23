@@ -11,10 +11,11 @@ from src.create_data.useful_functions import replacing_print, cleaned_data_path
 # Gather all author data and insert it into the ALLAUTHORNAMES table
 # Match different spellings of Authors to the same author.
 # Enter these combined names into the AUTHOR table
-# Gather all the categories in which a author works in and enter them into the AUTHOR_CATEGORY table
-def name_harmonize_authors():
-    connection = establish_connection()
-    with open(cleaned_data_path(), encoding="utf-8") as json_file:
+# Gather all the categories in which an author works in and enter them into the AUTHOR_CATEGORY table
+def name_harmonize_authors(connection= None, db_name = None):
+    if not connection:
+        connection = establish_connection()
+    with open(cleaned_data_path(db_name), encoding="utf-8") as json_file:
         # The author dict will contain a simplified name with all the spellings of an author and the categories that
         # he/she works in
         author_dict = {}
@@ -31,6 +32,7 @@ def name_harmonize_authors():
                 replacing_print(f"{counter:_} Lines have been read")
             authors = element["authors_parsed"]
             categories = element["categories"]
+            author_truth = element["author_id"]
             for aut in authors:
                 author = combine_author_name(aut)
                 new_author = unidecode(author)
@@ -49,16 +51,25 @@ def name_harmonize_authors():
                                 author_dict[new_author]["categories"][category] += 1
                             else:
                                 author_dict[new_author]["categories"][category] = 1
+                        if author_truth in author_dict[new_author]["truth"].keys():
+                            author_dict[new_author]["truth"][author_truth] += 1
+                        else:
+                            author_dict[new_author]["truth"][author_truth] = 1
                     else:
                         author_dict[new_author] = {}
                         author_dict[new_author]["categories"] = {}
                         author_dict[new_author]["authors"] = {}
+                        author_dict[new_author]["truth"] = {}
                         author_dict[new_author]["authors"][author] = 1
+                        author_dict[new_author]["truth"][author_truth] = 1
                         for category in categories.split(" "):
                             author_dict[new_author]["categories"][category] = 1
                 else:
                     author_counter += 1
+                    print(new_author)
                     category_counter += len(categories.split(" "))
+    print("There are authors that are removed")
+    print(author_counter)
     # detect if an author has multiple entries that could be combined and combine them
     replacing_print("Begin Author Refining")
     refine(author_dict)
@@ -91,6 +102,14 @@ def name_harmonize_authors():
                         FROM CATEGORY
                         WHERE name =?;
                     """, params)
+            for truth in author_dict[author_type]["truth"].keys():
+                params = (author_id,author_dict[author_type]["truth"][truth], truth)
+                connection.execute("""
+                    INSERT INTO AUTHOR_GROUND_TRUTH_RELATION (idOfAuthor, idOfGroundTruth, numberOfOccurrences) 
+                        SELECT ?,id,?
+                        FROM AUTHOR_GROUND_TRUTH
+                        WHERE name =?;
+                    """, params)
         replacing_print(f"{author_id} Authors inserted into DB")
 
 
@@ -117,6 +136,13 @@ def merge_authors(author1, author2, author_dict):
             author_dict[new_author]["categories"][category] += number_of_category_appearances
         else:
             author_dict[new_author]["categories"][category] = number_of_category_appearances
+    # combine ground truth data
+    for author_truth in author_dict[author_to_merge]["truth"].keys():
+        number_of_author_truth_appearances = author_dict[author_to_merge]["truth"][author_truth]
+        if author_truth in author_dict[new_author]["truth"].keys():
+            author_dict[new_author]["truth"][author_truth] += number_of_author_truth_appearances
+        else:
+            author_dict[new_author]["truth"][author_truth] = number_of_author_truth_appearances
     # remove that entry that was copied into the other
     del author_dict[author_to_merge]
     # create a more appropriate name for the remaining entry
@@ -149,7 +175,7 @@ def combine_author_name(aut):
 # Param: author the name of the author that is simplified
 # Returns the simplified name
 def simplify_author_name(author):
-    author = re.sub("-", " ", author)
+    author = re.sub("[-.]", " ", author)
     author = re.sub("[\"./,;*~%'\]\[{}=`$^_#+?&@\x7F|]", "", author)
     author = re.sub("<br>", "", author)
     author = re.sub("\\\\", "", author)
