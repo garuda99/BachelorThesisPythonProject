@@ -32,7 +32,10 @@ def name_harmonize_authors(connection= None, db_name = None):
                 replacing_print(f"{counter:_} Lines have been read")
             authors = element["authors_parsed"]
             categories = element["categories"]
-            author_truth = element["author_id"]
+            if "author_id" in element:
+                author_truth = element["author_id"]
+            else:
+                author_truth = None
             for aut in authors:
                 author = combine_author_name(aut)
                 new_author = unidecode(author)
@@ -66,10 +69,7 @@ def name_harmonize_authors(connection= None, db_name = None):
                             author_dict[new_author]["categories"][category] = 1
                 else:
                     author_counter += 1
-                    print(new_author)
                     category_counter += len(categories.split(" "))
-    print("There are authors that are removed")
-    print(author_counter)
     # detect if an author has multiple entries that could be combined and combine them
     replacing_print("Begin Author Refining")
     refine(author_dict)

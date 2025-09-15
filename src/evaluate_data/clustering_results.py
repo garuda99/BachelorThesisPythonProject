@@ -2,6 +2,10 @@ import json
 from src.create_data.create_sqlite import establish_connection
 from src.create_data.useful_functions import replacing_print,cleaned_data_path,change_cursor_to_list,databases_path
 
+
+# A quick script for getting the results of AND and the ground truth.
+# It writes the true and then the predicted labels into a file called results.txt.
+# It is in the same format as necessary for ANDez
 if __name__ == '__main__':
     connection = establish_connection("scad")
     labels_pred = []

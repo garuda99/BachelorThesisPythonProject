@@ -41,12 +41,14 @@ def cleaned_data_path(db_name = None):
     else:
         return os.path.join(dumpFolderPath, "cleaned.json")
 
+# Returns: the path to the databases folder
 def databases_path():
     path = os.path.realpath(__file__)
     path = os.path.dirname(os.path.dirname(path))
     return os.path.join(path, "../databases")
 
 
+# Returns: the path to the dump
 def dumpFolder_path():
     path = os.path.realpath(__file__)
     path = os.path.dirname(os.path.dirname(path))

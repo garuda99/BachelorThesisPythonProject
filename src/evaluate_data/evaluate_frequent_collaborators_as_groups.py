@@ -1,7 +1,7 @@
 from src.create_data.create_sqlite import establish_connection
 from src.create_data.useful_functions import change_cursor_to_list, replacing_print
 
-
+# Evaluates how often the top collaborators of an author also collaborate with each other.
 def evaluate_freq_collab_as_groups():
     author_counter = 0
     freq_collab_counter = [0] * 10

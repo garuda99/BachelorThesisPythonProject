@@ -1,7 +1,7 @@
 from src.create_data.create_sqlite import establish_connection
 from src.create_data.useful_functions import change_cursor_to_list, replacing_print
 
-
+# Evaluates whether the top 10 frequent collaborators of each author differ from the top 10 collaborators ordered by name.
 def evaluate_frequent_collaborators():
     totalCounter = 0
     differentCounter = 0

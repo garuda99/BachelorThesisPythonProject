@@ -10,7 +10,7 @@ import os
 import re
 from unidecode import unidecode
 
-
+# The main function to run AND on the SCAD-zbMath dataset
 def main():
     db_name= "scad"
     connection = establish_connection(db_name)
@@ -28,6 +28,9 @@ def main():
         name_harmonize_authors(connection,db_name)
         
 
+# changes the xml from a publication into a list of authors each with their respective ground truth.
+# authors_obj: the xml with a publication
+# returns: a list of dicts of authors with their ground truth
 def process_authors(authors_obj):
     authors = authors_obj.get("author", [])
     if not isinstance(authors, list):
@@ -47,6 +50,10 @@ def process_authors(authors_obj):
         })
     return authors_parsed
 
+
+# converts the xml into the JSON used by our heuristic and writes it into a file
+# xml_path: the path including filename where the xml is
+# output_path: the path including filename where the output file should go.
 def xml_to_json(xml_path, output_path):
     with open(xml_path, 'r', encoding='utf-8') as f:
         data = xmltodict.parse(f.read())
@@ -66,6 +73,9 @@ def xml_to_json(xml_path, output_path):
                 out.write('\n')
 
 
+# collects the ground truth and enters it into the correct table
+# connection: the database connection
+# db_name: the name of the database
 def collect_ground_truth(connection= None, db_name = None):
     if not connection:
         connection = establish_connection()

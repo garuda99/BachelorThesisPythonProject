@@ -2,6 +2,7 @@ from src.create_data.create_sqlite import establish_connection
 from src.create_data.useful_functions import change_cursor_to_list, replacing_print
 
 
+# Evaluates the effect name harmonization has on frequent collaborators and prints the results
 def evaluate_name_harmonization_with_frequent_collaborators():
     totalCounter = 0
     differentCounter = 0
